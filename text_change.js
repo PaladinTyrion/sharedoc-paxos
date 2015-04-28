@@ -23,7 +23,7 @@ function text_change () {
 				value = newVal[position];
 			};
 
-		}else if (this.oldVal.length > newVal.length) {
+		}else if (oldVal.length > newVal.length) {
 			type = "Delete";
 			var found = false;
 			for (var i = 0; i < newVal.length; i++) {
