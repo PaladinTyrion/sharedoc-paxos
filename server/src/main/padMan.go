@@ -33,10 +33,6 @@ func (pm *PadManager) registerOp(opIn Op) Op {
 func (pm *PadManager) applyCommittedOp(op Op) {
   assert(opIn.Rev == pm.rev, "applyCommittedOp")
   
-  if op.Opty == NoOp {
-    return
-  }
-  
   if op.Opty == InsertOp {
     if op.Pos < 0 {
       pm.text = op.Char[0] + pm.text
@@ -54,9 +50,11 @@ func (pm *PadManager) applyCommittedOp(op Op) {
       pm.text = pm.text[:op.Pos-1] + pm.text[op.Pos+1:]
     }
   } else {
-    assert(false, "applyCommittedOp - Opty")
+    // noop, do nothing
   }
 
+  _, ok := pm.history[pm.rev]
+  assert(!ok, "applyCommittedOp - rev exists")
   pm.history[pm.rev] = op
   pm.rev++
 
@@ -88,8 +86,7 @@ func opReconcile(op1 *Op, op2 Op) {
         // do nothing
       }
     } else {
-      // panic
-      assert(false, "opReconcile - committed noop1")
+      // op2 is noop, everything fine
     }
   } else if op1.Opty == DeleteOp {
     if op2.Opty == InsertOp {
@@ -109,7 +106,7 @@ func opReconcile(op1 *Op, op2 Op) {
         // do nothing
       }
     } else {
-      assert(false, "opReconcile - committed noop2")
+      // op2 is noop, everything fine
     }
   } else {
     // once a noop, always a noop; do nothing
