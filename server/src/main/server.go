@@ -1,6 +1,15 @@
 package "main"
 
-import "paxos"
+import (
+  "sync"
+  "paxos"
+)
+
+const (
+  NoOp     = iota
+  InsertOp
+  DeleteOp
+)
 
 type Op struct {
   Cid  int
@@ -12,5 +21,7 @@ type Op struct {
 }
 
 type EPServer struct {
-  px *paxos.Paxos
+  mu   sync.Mutex
+  px   *paxos.Paxos
+  pads map[int64]PadManager // pad id -> the actual etherpad manager
 }
