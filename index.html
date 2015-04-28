@@ -4,18 +4,44 @@
   <title>Text editor</title>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
   <script src="jquery-linedtextarea.js"></script>
+  <script src="text_change.js"></script>
   <link href="jquery-linedtextarea.css" type="text/css" rel="stylesheet" />
 </head>
 <body>
 
   <!-- Text area -->
   <textarea class="lined" id="text" rows="40" cols="120"></textarea>
+
   <script>
-  $(document).ready(function(){
-    $('.lined').linedtextarea(
-      {selectedLine: 1}
-    );
-  });
+    $(document).ready(function(){
+      $('.lined').linedtextarea(
+        {}
+      );
+
+    });
+  </script>
+
+  <!-- single character op -->
+  <script>
+    var local_op = []; //to store local uncommitted operations
+    var version_num = 0; //version number
+    var oldVal = ""; //store the textarea content 
+    var id = Math.floor(Math.random()*1E16); //identification for each broswer
+    
+    //keep the textarea content when pressing key
+    $("#text").keydown(function(e){ 
+      oldVal = $("#text").val();
+    });
+
+    //calculate the operation when releasing pressed key
+    $("#text").keyup(function(e){
+      text_change();
+    }); 
+  </script>
+
+  <!-- pseudo-increase version number, can be deleted-->
+  <script>
+    //setInterval(function(){version_num++; console.log(version_num);},1000);
   </script>
 
 </body>

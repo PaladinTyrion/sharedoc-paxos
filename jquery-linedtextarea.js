@@ -58,7 +58,7 @@
 		return this.each(function() {
 			var lineNo = 1;
 			var textarea = $(this);
-			
+				
 			/* Turn off the wrapping of as we don't want to screw up the line numbers */
 			textarea.attr("wrap", "off");
 			textarea.css({resize:'none'});
