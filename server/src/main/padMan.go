@@ -21,9 +21,6 @@ func (pm *PadManager) registerOp(opIn Op) Op {
     assert(opIn.Rev < pm.rev, "RegisterOp")
     for v := opIn.Rev; v < pm.rev; v++ {
       opReconcile(&opRet, pm.history[v])
-      if opRet.Opty == NoOp {
-        break
-      }
     }
     pm.applyCommittedOp(opRet)
   }
@@ -34,11 +31,12 @@ func (pm *PadManager) registerOp(opIn Op) Op {
 // PadManager::applyCommittedOp()
 // Applies a committed operation to update server state.
 func (pm *PadManager) applyCommittedOp(op Op) {
+  assert(opIn.Rev == pm.rev, "applyCommittedOp")
+  
   if op.Opty == NoOp {
     return
   }
-
-  assert(opIn.Rev == pm.rev, "applyCommittedOp")
+  
   if op.Opty == InsertOp {
     if op.Pos < 0 {
       pm.text = op.Char[0] + pm.text
@@ -114,7 +112,7 @@ func opReconcile(op1 *Op, op2 Op) {
       assert(false, "opReconcile - committed noop2")
     }
   } else {
-    assert(false, "opReconcile - op1 noop")
+    // once a noop, always a noop; do nothing
   }
   op1.Rev++
   return
