@@ -22,9 +22,9 @@ func (es *EPServer) getPadById(padId int64) *PadManager {
 
   pm, ok := es.pads[padId]
   if !ok {
-    pm := NewPadManager(padId)
+    pm = NewPadManager(padId)
     es.pads[padId] = pm
   }
-
+  
   return &pm
 }
