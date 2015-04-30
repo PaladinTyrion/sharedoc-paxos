@@ -37,6 +37,7 @@ func spawnServer(pxid int) {
       } else {
         so.Join(pad)
         pm := es.getPadById(padId)
+        es.socketCheckIn(so.Id(), padId)
         piJSON, err := json.Marshal(pm.getLatestInfo())
         assert(err == nil, "panic 1")
         so.Emit("pad info", string(piJSON[:]))
@@ -48,6 +49,11 @@ func spawnServer(pxid int) {
     // fields. Field names should be kept consistent with Op{} in
     // common.go, case-sensitive.
     so.On("edit", func(opJSON string) {
+      padId, ok := es.lookupPadId(so.Id())
+      if !ok {
+        so.Emit("error", "not checked in")
+        return
+      }
       sOp := make(map[string]string)
       err := json.Unmarshal([]byte(opJSON), &sOp)
       if err != nil {
@@ -60,12 +66,13 @@ func spawnServer(pxid int) {
       }
       // do not emit anything here, use paxos to do the correct
       // thing when a committed operation is discovered
-      es.processOp(op)
+      es.processOp(padId, op)
       return
     })
 
-    // According to the socketio spec nothing needs to be done here
-    so.On("disconnection", func(){})
+    so.On("disconnection", func(){
+      es.socketCheckOut(so.Id())
+    })
   })
   
   server.On("error", func(so socketio.Socket, err error) {
