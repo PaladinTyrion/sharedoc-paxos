@@ -1,6 +1,18 @@
 package "main"
 
+import (
+  "sync"
+)
+
+type PadInfo struct {
+  PadId int64
+  Rev   uint64
+  Text  string
+}
+
 type PadManager struct {
+  // mutex is protecting against operations that don't go through Paxos
+  mu      sync.Mutex
   padId   int64
   rev     uint64
   text    string
@@ -13,6 +25,9 @@ type PadManager struct {
 // operation. Assumes that operations are passed in in paxos-log order
 // without duplications.
 func (pm *PadManager) registerOp(opIn Op) Op {
+  pm.mu.Lock()
+  defer pm.mu.Unlock()
+
   opRet := opIn
   if opIn.Rev == pm.rev {
     // No conflicts, apply it direcly
@@ -113,4 +128,16 @@ func opReconcile(op1 *Op, op2 Op) {
   }
   op1.Rev++
   return
+}
+
+func (pm *PadManager) getLatestInfo() PadInfo {
+  pm.mu.Lock()
+  defer pm.mu.Unlock()
+  
+  ret := PadInfo{}
+  ret.PadId = pm.padId
+  ret.Rev = pm.rev
+  ret.Text = pm.text
+
+  return ret
 }
