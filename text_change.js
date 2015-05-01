@@ -1,6 +1,8 @@
 function text_change () {
 	var newVal = $("#text").val();
 
+	//if (this.oldVal == null) {this.oldVal = "";};
+
 	if (oldVal !== newVal) {
 		//find the difference
 		var type;
@@ -40,14 +42,18 @@ function text_change () {
 			};
 		};
 
-		oldVal = newVal;
+		//this.oldVal = newVal;
+		if (type !== null && position !== null && value !== null) {
+			var op = {ID: id, Version: version_num, Type: type, Position: position, Value: value};
+			local_op.push(op);
+		};
 		
-		var op = {ID: id, Version: version_num, Type: type, Position: position, Value: value};
-		local_op.push(op);
 
 		//see results in console
 		console.log(op);
 		console.log(local_op);
+		console.log(oldVal);
+		console.log(newVal);
 
 	};
 

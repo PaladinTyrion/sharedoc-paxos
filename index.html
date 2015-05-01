@@ -31,17 +31,23 @@
     //keep the textarea content when pressing key
     $("#text").keydown(function(e){ 
       oldVal = $("#text").val();
+      console.log(oldVal);
+      console.log(e);
+      console.log(e.keyCode);
+
     });
 
     //calculate the operation when releasing pressed key
-    $("#text").keyup(function(e){
-      text_change();
-    }); 
+    // $("#text").keyup(function(e){
+    //   text_change();
+    // }); 
   </script>
 
   <!-- pseudo-increase version number, can be deleted-->
   <script>
-    //setInterval(function(){console.log(local_op.shift());},5000); shift cna be used to get the first element of array
+    setInterval(function(){
+      $("#text").val('a'+ $("#text").val());
+    },5000); 
     //setInterval(function(){version_num++; console.log(version_num);},1000);
   </script>
 
