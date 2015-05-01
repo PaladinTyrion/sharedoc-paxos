@@ -44,7 +44,7 @@ func (pm *PadManager) registerOp(opIn Op) Op {
 }
 
 // PadManager::applyCommittedOp()
-// Applies a committed operation to update server state.
+// Applies a committed operation to update etherpad state.
 func (pm *PadManager) applyCommittedOp(op Op) {
   assert(opIn.Rev == pm.rev, "applyCommittedOp")
   
