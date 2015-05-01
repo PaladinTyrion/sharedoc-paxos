@@ -1,0 +1,113 @@
+%-----------------------------------------------------------------------------
+%
+%               Template for sigplanconf LaTeX Class
+%
+% Name:         sigplanconf-template.tex
+%
+% Purpose:      A template for sigplanconf.cls, which is a LaTeX 2e class
+%               file for SIGPLAN conference proceedings.
+%
+% Guide:        Refer to "Author's Guide to the ACM SIGPLAN Class,"
+%               sigplanconf-guide.pdf
+%
+% Author:       Paul C. Anagnostopoulos
+%               Windfall Software
+%               978 371-2316
+%               paul@windfall.com
+%
+% Created:      15 February 2005
+%
+%-----------------------------------------------------------------------------
+
+
+\documentclass[preprint,nocopyrightspace]{sigplanconf}
+
+% The following \documentclass options may be useful:
+
+% preprint      Remove this option only once the paper is in final form.
+% 10pt          To set in 10-point type instead of 9-point.
+% 11pt          To set in 11-point type instead of 9-point.
+% authoryear    To obtain author/year citation style instead of numeric.
+
+\usepackage{amsmath}
+\usepackage{url}
+
+\begin{document}
+
+
+\special{papersize=8.5in,11in}
+\setlength{\pdfpageheight}{\paperheight}
+\setlength{\pdfpagewidth}{\paperwidth}
+
+%\conferenceinfo{CONF 'yy}{Month d--d, 20yy, City, ST, Country} 
+%\copyrightyear{20yy} 
+%\copyrightdata{978-1-nnnn-nnnn-n/yy/mm} 
+%\doi{nnnnnnn.nnnnnnn}
+
+% Uncomment one of the following two, if you are not going for the 
+% traditional copyright transfer agreement.
+
+%\exclusivelicense                % ACM gets exclusive license to publish, 
+                                  % you retain copyright
+
+%\permissiontopublish             % ACM gets nonexclusive license to publish
+                                  % (paid open-access papers, 
+                                  % short abstracts)
+
+% \titlebanner{banner above paper title}        % These are ignored unless
+% \preprintfooter{short description of paper}   % 'preprint' option specified.
+
+\title{Experimenting with Operational Transformations in an Etherpad-like Online Collaboration System}
+
+\authorinfo{Yihe Huang}
+  {Harvard University}
+  {hyihe@mit.edu\\yihehuang@g.harvard.edu}
+\authorinfo{Yongbin Sun}
+  {Massachusetts Institute of Technology}
+  {yb\_sun@mit.edu}
+% \subtitle{Subtitle Text, if any}
+
+\maketitle
+
+\begin{abstract}
+
+For an online collaboration platform like Etherpad, simply resolving conflicts
+on the server side is not enough. The underlying algorithms should also be
+responsible for presenting eventual consistent views to all collaborators,
+while allowing them to briefly diverge in order to avoid blocking. We built
+such a system based on the idea of operational transformation to understand
+the challenges of designing OT-based systems. Our results show that simple OT
+designs have very strong and intuitive correctness properties that beat most
+ad-hoc reasonings frequently seen in distributed systems.
+
+\end{abstract}
+
+% \category{CR-number}{subcategory}{third-level}
+
+% general terms are not compulsory anymore, 
+% you may leave them out
+
+\keywords
+Operational transformation, conflict resolution, distributed systems
+
+\input{intro.tex}
+\input{design.tex}
+\input{impl.tex}
+\input{eval.tex}
+\input{concl.tex}
+
+% We recommend abbrvnat bibliography style.
+
+\bibliographystyle{abbrvnat}
+
+\bibliography{main}
+
+% The bibliography should be embedded for final submission.
+
+\end{document}
+
+%                       Revision History
+%                       -------- -------
+%  Date         Person  Ver.    Change
+%  ----         ------  ----    ------
+
