@@ -29,11 +29,22 @@
     var id = Math.floor(Math.random()*1E16); //identification for each broswer
     
     //keep the textarea content when pressing key
-    $("#text").keydown(function(e){ 
+    $("#text").keyup(function(e){ 
       oldVal = $("#text").val();
       console.log(oldVal);
       console.log(e);
       console.log(e.keyCode);
+
+    });
+
+    $("#text").keypress(function(e){
+      console.log("pressed: " + e.keyCode);
+      console.log("pressed: " + String.fromCharCode(e.keyCode));
+      console.log("pressed: " + CapsLock(e));
+    });
+
+    $("#text").keypress(function(e){
+      console.log("down..");
 
     });
 
@@ -45,9 +56,9 @@
 
   <!-- pseudo-increase version number, can be deleted-->
   <script>
-    setInterval(function(){
-      $("#text").val('a'+ $("#text").val());
-    },5000); 
+    // setInterval(function(){
+    //   $("#text").val('a'+ $("#text").val());
+    // },5000); 
     //setInterval(function(){version_num++; console.log(version_num);},1000);
   </script>
 

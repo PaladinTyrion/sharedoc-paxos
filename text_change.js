@@ -58,3 +58,21 @@ function text_change () {
 	};
 
 }
+
+function  CapsLock(e) {
+  var Caps = null;
+  var s = String.fromCharCode(e.which);
+  if ( s.toUpperCase() === s && s.toLowerCase() !== s && !e.shiftKey ) {
+    Caps = true;
+  } else {
+      Caps = false;
+  }
+
+  if(s.toUpperCase() === s){
+      Caps = true;
+  }else{
+      Caps = false;
+  }
+
+  return Caps;
+}
