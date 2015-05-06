@@ -1,6 +1,7 @@
-package "main"
+package main
 
 import (
+  "os"
   "log"
   "fmt"
   "sync"
@@ -12,7 +13,7 @@ import (
 )
 
 const (
-  PXCONFIG = 5
+  PXCONFIG = 3
 )
 
 // boring parsing stuff 1.0
@@ -31,7 +32,7 @@ func spawnServer(pxpeers []string, me int, wg *sync.WaitGroup) {
     // (an integer in string format) as the argument
     // all subsequent edits are assumed to be operating on this pad
     so.On("open pad", func(pad string) {
-      if len(so.Rooms) > 1 {
+      if len(so.Rooms()) > 1 {
         so.Emit("error", "alreay opened")
         return
       }
@@ -40,7 +41,12 @@ func spawnServer(pxpeers []string, me int, wg *sync.WaitGroup) {
       if err != nil {
         so.Emit("error", "invalid pad id")
       } else {
+        // wrapping mutex around it because socketio not thread-safe
+        // this is cumbersome and should be fixed later
+        es.mu.Lock()
         so.Join(pad)
+        es.mu.Unlock()
+        
         pm := es.getPadById(padId)
         es.socketCheckIn(so.Id(), padId)
         piJSON, err := json.Marshal(pm.getLatestInfo())
@@ -65,7 +71,8 @@ func spawnServer(pxpeers []string, me int, wg *sync.WaitGroup) {
         so.Emit("error", "invalid op")
         return
       }
-      if op, err := toNativeOp(sOp); err != nil {
+      op, err := toNativeOp(sOp)
+      if err != nil {
         so.Emit("error", "invalid op")
         return
       }
@@ -86,9 +93,12 @@ func spawnServer(pxpeers []string, me int, wg *sync.WaitGroup) {
 
   es.startAutoApply()
 
-  http.Handle("/api/", server)
-  port := 5000
-  log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", port+pxid), nil))
+  srvMux := http.NewServeMux()
+  srvMux.Handle("/api/", server)
+  port := 8080
+  portStr := fmt.Sprintf(":%v", port+me)
+  log.Printf("Server %v running at localhost%v\n", me, portStr)
+  log.Fatal(http.ListenAndServe(portStr, srvMux))
   wg.Done()
 }
 
@@ -141,7 +151,7 @@ func checkAndParse(dtype string, key string,
                    sOp map[string]string) (interface{}, error) {
   s, ok := sOp[key]
   if !ok {
-    return ret, errors.New("Key not found: "+key)
+    return nil, errors.New("Key not found: "+key)
   }
   
   var v interface{}
@@ -149,12 +159,12 @@ func checkAndParse(dtype string, key string,
   if dtype == "int" {
     v, err = strconv.ParseInt(s, 10, 0)
   } else if dtype == "uint64" {
-    v, err = strconv.ParseUInt(s, 10, 64)
+    v, err = strconv.ParseUint(s, 10, 64)
   } else if dtype == "string" {
     v, err = s, nil
   }
   if err != nil {
-    return ret, errors.New(fmt.Sprintf("Invalid %v format", key))
+    return nil, errors.New(fmt.Sprintf("Invalid %v format", key))
   } else {
     return v, err
   }

@@ -1,6 +1,6 @@
 !<arch>
 __.PKGDEF       0           0     0     644     60671     `
-go object linux amd64 go1.4.2 X:precisestack
+go object linux amd64 go1.4.1 X:precisestack
 
 $$
 package websocket
@@ -444,7 +444,7 @@ package websocket
 
 $$
  _go_.6          0           0     0     644     41590     `
-go object linux amd64 go1.4.2 X:precisestack
+go object linux amd64 go1.4.1 X:precisestack
 
 !
   go13ldio.anet/http.aVgithub.com/googollee/go-engine.io/message.aTgithub.com/googollee/go-engine.io/parser.aZgithub.com/googollee/go-engine.io/transport.a<github.com/gorilla/websocket.a þ"".NewClient  €  údH‹%    H;awè    ëêHì€   HÇ„$       HÇ„$˜       HÇ„$        HÇ„$¨       H‹    H‰\$HH‹œ$ˆ   H‹kH‰,$è    H‹L$H‹D$H‹\$HH‰$H‰L$pH‰L$H‰D$xH‰D$H‹œ$ˆ   H‹k8H‰l$è    H‹\$ H‰\$PH‹\$(H‰\$@H‹D$0H‹L$8H‰L$hHƒø H‰D$`t0HÇ„$       HÇ„$˜       H‰„$    H‰Œ$¨   HÄ€   ÃH    H‰$è    H‹D$H‰D$XH‰$Hƒ<$ „¿   H‹\$PH‰\$è    H‹\$XH‰$Hƒ<$ „   Hƒ$H‹\$@H‰\$è    H‹\$XH‰\$XH‹    1íH9èt5H‹\$XH‰œ$˜   H‰„$   HÇ„$        HÇ„$¨       HÄ€   ÃH    H‰$H    H‰\$H    H‰\$è    H‹D$ëœ‰%    édÿÿÿ‰%    é5ÿÿÿ

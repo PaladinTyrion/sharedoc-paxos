@@ -1,11 +1,12 @@
-package "main"
+package main
 
 import (
   "sync"
-  "log"
   "crypto/rand"
   "net/rpc"
   "paxos"
+  "math/big"
+  "encoding/gob"
   "github.com/googollee/go-socket.io"
 )
 

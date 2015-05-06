@@ -1,4 +1,4 @@
-package "main"
+package main
 
 import (
   "fmt"
@@ -68,10 +68,10 @@ func (es *EPServer) paxosAppendToLog(le PxLogEntry) int {
 // Fill up potential holes in unapplied log (after commitPoint). Just
 // to be conservative.
 func (es *EPServer) paxosLogConsolidate() {
-  es.paxosLogConsolidate(es.px.Max())
+  es.paxosLogConsolidate_explicit(es.px.Max())
 }
 
-func (es *EPServer) paxosLogConsolidate(upto int) {
+func (es *EPServer) paxosLogConsolidate_explicit(upto int) {
   for i := es.commitPoint; i <= upto; i++ {
     status, _ := es.px.Status(i)
     if status == paxos.Decided {
@@ -126,7 +126,7 @@ func (es *EPServer) autoApply() {
     return
   }
 
-  es.paxosLogConsolidate(max)
+  es.paxosLogConsolidate_explicit(max)
   es.applyLog(max)
   return
 }
@@ -137,5 +137,5 @@ func (es *EPServer) startAutoApply() {
       es.autoApply()
       time.Sleep(100 * time.Millisecond)
     }
-  }
+  }()
 }

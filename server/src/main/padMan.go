@@ -1,4 +1,4 @@
-package "main"
+package main
 
 import (
   "sync"
@@ -46,20 +46,20 @@ func (pm *PadManager) registerOp(opIn Op) Op {
 // PadManager::applyCommittedOp()
 // Applies a committed operation to update etherpad state.
 func (pm *PadManager) applyCommittedOp(op Op) {
-  assert(opIn.Rev == pm.rev, "applyCommittedOp")
+  assert(op.Rev == pm.rev, "applyCommittedOp")
   
   if op.Opty == InsertOp {
     if op.Pos < 0 {
-      pm.text = op.Char[0] + pm.text
-    } else if op.Pos >= len(pm.text) {
-      pm.text += op.Char[0]
+      pm.text = op.Char[0:0] + pm.text
+    } else if op.Pos >= uint64(len(pm.text)) {
+      pm.text += op.Char[0:0]
     } else {
-      pm.text = pm.text[:op.Pos] + op.Char[0] + pm.text[op.Pos+1:]
+      pm.text = pm.text[:op.Pos] + op.Char[0:0] + pm.text[op.Pos+1:]
     }
   } else if op.Opty == DeleteOp {
     if op.Pos == 0 {
       pm.text = pm.text[1:]
-    } else if op.Pos == len(pm.text) {
+    } else if op.Pos == uint64(len(pm.text)) {
       pm.text = pm.text[:len(pm.text)-1]
     } else {
       pm.text = pm.text[:op.Pos-1] + pm.text[op.Pos+1:]
