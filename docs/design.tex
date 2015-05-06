@@ -1,1 +1,56 @@
 \section{Design}
+
+The system we designed and implemented consists of three components: the OT
+algorithm, the server, and the client. We implemented a centralized model where
+clients don't talk to each other but rely on the server for coordination. The
+the clients generate operations based on the local information and submit it to
+the server. The server reconciles operations from different clients, resolve any
+conflicts, and broadcast the results to all clients. Finally each client update
+their local state in accordance with the information received from the server.
+The OT algorithm is involved in each of the step above and is therefore the core
+of our system. Now let's look at each component in detail.
+
+\subsection{OT Algorithm}
+
+At a high level, our operational transformation (OT) framework ensures that all
+clients and servers agree on a total order in which operations are applied. We
+achieve this by making each client operation in one of the three possible
+states: {\em committed}, {\em pending}, and {\em unsent}. (We'll explain then in
+more detail in Section~\ref{sec:design_client}) Only committed operations are
+treated as ``hard truth'' by the servers and clients, and clients only receive
+committed operations from servers. Both pending and unsent messages will also be
+referred to as {\em uncommitted} messages for the rest of this document.
+
+Each operation alone must contain enough information to express its intention,
+and conflict resolution is performed using this information. We achieve this by
+assigning each operation a version number it operates on, so that the intention
+of the operation can be extracted even if messages arrive in different order.
+Every operation, when committed, will be applied to the local state of the
+clients and the servers, and will advance the version number by one. We only
+advance the version number when an operation is committed so that version
+numbers are kept consistent across all participants, i.e. the same version
+number from different clients is guaranteed to refer to the same historical
+version of the document.
+
+A key feature of our OT algorithm is that the version numbers as well as other
+information associated with uncommitted operations are subject to change. After
+the server receives an operation, it will apply the server-side policy to merge
+this operation into the document's edit history, preserving the arriving
+operation's intention, and finally transforms the operation into a committed
+operation and broadcasts it to all clients. The clients receive committed
+operations from the server and apply them in order. This rigorous version
+management scheme ensures that all servers and clients agree on a single order
+of all committed operations. In principle it is enough to ensure the correctness
+of the system because only committed operations are allowed to mutate local
+state.
+
+\subsection{Server}
+
+As mentioned above, all conflict resolutions happen on the server side. For
+simplicity reasons we only implemented single-character operations to minimize
+the complexity of conflict resolution. The server also stores the entire history
+of committed operations so that it can resolve conflicts for out-of-date
+operations (operations that refer to older version numbers).
+
+\subsection{Client}
+\label{sec:design_client}

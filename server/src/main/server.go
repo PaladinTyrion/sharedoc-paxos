@@ -3,6 +3,7 @@ package "main"
 import (
   "log"
   "fmt"
+  "sync"
   "strconv"
   "errors"
   "encoding/json"
@@ -10,8 +11,12 @@ import (
   "github.com/googollee/go-socket.io"
 )
 
+const (
+  PXCONFIG = 5
+)
+
 // boring parsing stuff 1.0
-func spawnServer(pxid int) {
+func spawnServer(pxpeers []string, me int, wg *sync.WaitGroup) {
   server, err := socketio.NewServer(nil)
   if err != nil {
       log.Fatal(err)
@@ -19,7 +24,7 @@ func spawnServer(pxid int) {
 
   // we need the server argument because paxos needs it to send
   // broadcast messages when an operation is committed
-  es := NewEPServer(pxid, server)
+  es := NewEPServer(pxpeers, me, server)
   
   server.On("connection", func(so socketio.Socket) {
     // Client should first send a "open pad" message, with "pad id"
@@ -79,9 +84,12 @@ func spawnServer(pxid int) {
       log.Println("error:", err)
   })
 
+  es.startAutoApply()
+
   http.Handle("/api/", server)
   port := 5000
   log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", port+pxid), nil))
+  wg.Done()
 }
 
 // boring parsing stuff 2.0
@@ -150,4 +158,27 @@ func checkAndParse(dtype string, key string,
   } else {
     return v, err
   }
+}
+
+func port(host int) string {
+  s := fmt.Sprintf("/var/tmp/824proj-%v/", os.Getuid())
+  os.Mkdir(s, 0777)
+  s += fmt.Sprintf("px-%v-%v", os.Getpid(), host)
+  return s
+}
+
+func main() {
+  pxpeers := make([]string, PXCONFIG)
+  for i := 0; i < PXCONFIG; i++ {
+    pxpeers = append(pxpeers, port(i))
+  }
+
+  var wg sync.WaitGroup
+  for i := 0; i < PXCONFIG; i++ {
+    wg.Add(1)
+    go spawnServer(pxpeers, i, &wg)
+  }
+  wg.Wait()
+
+  return
 }
