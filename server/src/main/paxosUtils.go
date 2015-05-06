@@ -115,7 +115,6 @@ func (es *EPServer) applyEntry(le PxLogEntry) {
   es.sio.BroadcastTo(padStr, "committed", string(opJSON[:]))
 }
 
-
 // call this in a separate Goroutine in a loop, with timer delays
 func (es *EPServer) autoApply() {
   es.mu.Lock()
@@ -130,4 +129,13 @@ func (es *EPServer) autoApply() {
   es.paxosLogConsolidate(max)
   es.applyLog(max)
   return
+}
+
+func (es *EPServer) startAutoApply() {
+  go func () {
+    for {
+      es.autoApply()
+      time.Sleep(100 * time.Millisecond)
+    }
+  }
 }

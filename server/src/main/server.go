@@ -11,7 +11,7 @@ import (
 )
 
 // boring parsing stuff 1.0
-func spawnServer(pxid int) {
+func spawnServer(pxpeers []string, me int) {
   server, err := socketio.NewServer(nil)
   if err != nil {
       log.Fatal(err)
@@ -19,7 +19,7 @@ func spawnServer(pxid int) {
 
   // we need the server argument because paxos needs it to send
   // broadcast messages when an operation is committed
-  es := NewEPServer(pxid, server)
+  es := NewEPServer(pxpeers, me, server)
   
   server.On("connection", func(so socketio.Socket) {
     // Client should first send a "open pad" message, with "pad id"
@@ -78,6 +78,8 @@ func spawnServer(pxid int) {
   server.On("error", func(so socketio.Socket, err error) {
       log.Println("error:", err)
   })
+
+  es.startAutoApply()
 
   http.Handle("/api/", server)
   port := 5000

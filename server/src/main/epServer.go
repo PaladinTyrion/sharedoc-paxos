@@ -4,6 +4,7 @@ import (
   "sync"
   "log"
   "crypto/rand"
+  "net/rpc"
   "paxos"
   "github.com/googollee/go-socket.io"
 )
@@ -70,4 +71,19 @@ func (es *EPServer) processOp(padId int64, op Op) {
   es.paxosLogConsolidate()
   seq := es.paxosAppendToLog(le)
   es.applyLog(seq)
+}
+
+func NewEPServer(pxpeers []string, me int, sio *socketio.Server) *EPServer {
+  gob.Register(PxLogEntry{})
+
+  rpcs := rpc.NewServer()
+
+  es := &EPServer{}
+  es.sio = sio
+  es.px = paxos.Make(pxpeers, me, rpcs)
+  es.skts = make(map[string]int64)
+  es.pads = make(map[int64]PadManager)
+  es.commitPoint = 0
+
+  return es
 }

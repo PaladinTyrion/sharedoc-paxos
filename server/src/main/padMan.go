@@ -141,3 +141,14 @@ func (pm *PadManager) getLatestInfo() PadInfo {
 
   return ret
 }
+
+func NewPadManager(padId int64) PadManager {
+  pm := PadManager{}
+
+  pm.padId = padId
+  pm.rev = uint64(0)
+  pm.text = ""
+  pm.history = make(map[uint64]Op)
+
+  return pm
+}
