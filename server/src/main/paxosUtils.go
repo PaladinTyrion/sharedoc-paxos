@@ -16,6 +16,8 @@ type PxLogEntry struct {
   ClientOp Op
 }
 
+var const_noop PxLogEntry = PxLogEntry{0, 0, Op{}}
+
 // EPServer::startAndWait():
 // Start a paxos agreement at instance number seq, and wait until
 // consensus is reached. Returns the decided log entry at that seq.
@@ -66,7 +68,11 @@ func (es *EPServer) paxosAppendToLog(le PxLogEntry) int {
 // Fill up potential holes in unapplied log (after commitPoint). Just
 // to be conservative.
 func (es *EPServer) paxosLogConsolidate() {
-  for i := es.commitPoint; i <= es.px.Max(); i++ {
+  es.paxosLogConsolidate(es.px.Max())
+}
+
+func (es *EPServer) paxosLogConsolidate(upto int) {
+  for i := es.commitPoint; i <= upto; i++ {
     status, _ := es.px.Status(i)
     if status == paxos.Decided {
       continue
@@ -97,10 +103,31 @@ func (es *EPServer) applyLog(ceiling int) {
 // sockets connected to this etherpad. Note that different clients
 // could be connected to different paxos peers
 func (es *EPServer) applyEntry(le PxLogEntry) {
+  if le.EntryId == int64(0) {
+    return
+  }
+
   pm := es.pads[le.PadId]
   cop := pm.registerOp(le.ClientOp)
   padStr := fmt.Sprintf("%v", le.PadId)
   opJSON, err := json.Marshal(cop)
   assert(err == nil, "panic 2")
   es.sio.BroadcastTo(padStr, "committed", string(opJSON[:]))
+}
+
+
+// call this in a separate Goroutine in a loop, with timer delays
+func (es *EPServer) autoApply() {
+  es.mu.Lock()
+  defer es.mu.Unlock()
+
+  max := es.px.MaxKnown()
+
+  if max <= es.commitPoint {
+    return
+  }
+
+  es.paxosLogConsolidate(max)
+  es.applyLog(max)
+  return
 }

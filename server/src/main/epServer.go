@@ -62,7 +62,11 @@ func (es *EPServer) processOp(padId int64, op Op) {
   es.mu.Lock()
   defer es.mu.Unlock()
 
-  le := PxLogEntry{nrand(), padId, op}
+  newId := int64(0)
+  for newId == 0 {
+    newId = nrand()
+  }
+  le := PxLogEntry{newId, padId, op}
   es.paxosLogConsolidate()
   seq := es.paxosAppendToLog(le)
   es.applyLog(seq)
