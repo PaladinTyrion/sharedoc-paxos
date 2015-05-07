@@ -4,3 +4,6 @@
 [submodule "server/src/github.com/googollee/go-engine.io"]
 	path = server/src/github.com/googollee/go-engine.io
 	url = git@github.com:googollee/go-engine.io.git
+[submodule "server/src/github.com/gorilla/websocket"]
+	path = server/src/github.com/gorilla/websocket
+	url = git@github.com:gorilla/websocket.git
