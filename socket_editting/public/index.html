@@ -2,18 +2,17 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>Text editor</title>
-  <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-  <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+  <script type="text/javascript" src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 
-  <script src= "jquery-linedtextarea.js"></script>
-  <script src=  "text_change.js"></script>
-  <script src=  "applyOp.js"></script>
+  <script type="text/javascript" src="jquery-linedtextarea.js"></script>
+  <script type="text/javascript" src="text_change.js"></script>
+  <script type="text/javascript" src="applyOp.js"></script>
   <script type="text/javascript" src="CapsLock.js"></script>
-  <link href= "jquery-linedtextarea.css" type="text/css" rel="stylesheet" />
+  <link href="jquery-linedtextarea.css" type="text/css" rel="stylesheet" />
 </head>
 <body>
-  <script src="/socket.io/socket.io.js"></script>
+  <!-- <script src="/socket.io/socket.io.js"></script> -->
   <script>
       var socket = io(); // load the socket.io.js, (io global and then connect)
   </script>
@@ -71,7 +70,7 @@
 
       position = cursorPosition.start;
 
-      var op = {ID: id, Version: version_num, Type: type, Position: position, Value: value};
+      var op = {ID: id.toString(), Version: version_num.toString(), Type: type, Position: position.toString(), Value: value};
       console.log(op);
       local_op.push(op);
 
@@ -104,7 +103,9 @@
   <!-- build socket and send and receive 'op'-->
   <script>
     //initialize committed op, and change version number
-    socket.on('init_comt_op',function(modified_seq){
+    socket.on('init_comt_op',function(pad){
+      var padObj = JSON.parse(pad);
+      var modified_seq = padObj.Ops;
       version_num = modified_seq.length;
       for (var i = 0; i < modified_seq.length; i++) {
         committed_op.push(modified_seq[i]);
@@ -112,13 +113,15 @@
       };
       var show_text = committed_string;
       $("#text").val(show_text);
-    }); 
+    });
 
+    socket.emit('open pad', '001');
     //send op
     var sendInterval = setInterval(function(){
+      console.log("time")
       if (sent == false && local_op.length > 0) {
         console.log("prepare to send");
-        socket.emit('op',local_op[0]);
+        socket.emit('op',JSON.stringify(local_op[0]));
         sent = true;
         //
         console.log("sent already");
@@ -126,8 +129,10 @@
     },10);
 
     //receive op
-    socket.on('op',function(in_op){
+    socket.on('op',function(in_opStr){
+      var in_op = JSON.parse(in_opStr);
       console.log("starting to receive");
+
       //if (incoming_op.ID == id && sent == true) {sent = false};
       //check incoming_op's version number, if it is the same as this browser's, then aplly it, and the others in cached incoming_op, o.w. cache it
       var incoming_op = in_op;

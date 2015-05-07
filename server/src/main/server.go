@@ -31,35 +31,33 @@ func spawnServer(pxpeers []string, me int, wg *sync.WaitGroup) {
     // Client should first send a "open pad" message, with "pad id"
     // (an integer in string format) as the argument
     // all subsequent edits are assumed to be operating on this pad
+    log.Printf("connection")
     so.On("open pad", func(pad string) {
+      log.Printf("open pad %v\n", pad)
       if len(so.Rooms()) > 1 {
         so.Emit("error", "alreay opened")
         return
       }
 
-      padId, err := strconv.ParseInt(pad, 10, 64)
-      if err != nil {
-        so.Emit("error", "invalid pad id")
-      } else {
-        // wrapping mutex around it because socketio not thread-safe
-        // this is cumbersome and should be fixed later
-        es.mu.Lock()
-        so.Join(pad)
-        es.mu.Unlock()
-        
-        pm := es.getPadById(padId)
-        es.socketCheckIn(so.Id(), padId)
-        piJSON, err := json.Marshal(pm.getLatestInfo())
-        assert(err == nil, "panic 1")
-        so.Emit("pad info", string(piJSON[:]))
-      }
+      // wrapping mutex around it because socketio not thread-safe
+      // this is cumbersome and should be fixed later
+      es.mu.Lock()
+      so.Join(pad)
+      es.mu.Unlock()
+      
+      pm := es.getPadById(pad)
+      es.socketCheckIn(so.Id(), pad)
+      piJSON, err := json.Marshal(pm.getLatestInfo())
+      assert(err == nil, "panic 1")
+      so.Emit("init_comt_op", string(piJSON[:]))
       return
     })
 
-    // An "edit" message's argument is a JSON string with all string
+    // An "op" message's argument is a JSON string with all string
     // fields. Field names should be kept consistent with Op{} in
     // common.go, case-sensitive.
-    so.On("edit", func(opJSON string) {
+    so.On("op", func(opJSON string) {
+      log.Printf("received op %v\n", opJSON)
       padId, ok := es.lookupPadId(so.Id())
       if !ok {
         so.Emit("error", "not checked in")
@@ -94,7 +92,8 @@ func spawnServer(pxpeers []string, me int, wg *sync.WaitGroup) {
   es.startAutoApply()
 
   srvMux := http.NewServeMux()
-  srvMux.Handle("/api/", server)
+  srvMux.Handle("/socket.io/", server)
+  srvMux.Handle("/", http.FileServer(http.Dir("../../../socket_editting/public/")))
   port := 8080
   portStr := fmt.Sprintf(":%v", port+me)
   log.Printf("Server %v running at localhost%v\n", me, portStr)
@@ -108,41 +107,43 @@ func toNativeOp(sOp map[string]string) (Op, error) {
   var v interface{}
   var err error
 
-  v, err = checkAndParse("int", "Cid", sOp)
+  v, err = checkAndParse("int64", "ID", sOp)
   if err != nil {
     return ret, err
   }
-  ret.Cid = v.(int)
-
-  v, err = checkAndParse("int", "Seq", sOp)
-  if err != nil {
-    return ret, err
-  }
-  ret.Seq = v.(int)
+  ret.ID = v.(int64)
   
-  v, err = checkAndParse("uint64", "Rev", sOp)
+  v, err = checkAndParse("uint64", "Version", sOp)
   if err != nil {
     return ret, err
   }
-  ret.Rev = v.(uint64)
+  ret.Version = v.(uint64)
   
-  v, err = checkAndParse("int", "Opty", sOp)
-  if err != nil {
-    return ret, err
+  if s, ok := sOp["Type"]; ok {
+    var opcode int
+    if s == "Insert" {
+      opcode = InsertOp
+    } else if s == "Delete" {
+      opcode = DeleteOp
+    } else {
+      opcode = NoOp
+    }
+    ret.Type = opcode
+  } else {
+    return ret, errors.New("Key not found: Type")
   }
-  ret.Opty = v.(int)
   
-  v, err = checkAndParse("uint64", "Pos", sOp)
+  v, err = checkAndParse("uint64", "Position", sOp)
   if err != nil {
     return ret, err
   }
-  ret.Pos = v.(uint64)
+  ret.Position = v.(uint64)
   
-  v, err = checkAndParse("string", "Char", sOp)
+  v, err = checkAndParse("string", "Value", sOp)
   if err != nil {
     return ret, err
   }
-  ret.Char = v.(string)
+  ret.Value = v.(string)
 
   return ret, err
 }
@@ -156,8 +157,8 @@ func checkAndParse(dtype string, key string,
   
   var v interface{}
   var err error
-  if dtype == "int" {
-    v, err = strconv.ParseInt(s, 10, 0)
+  if dtype == "int64" {
+    v, err = strconv.ParseInt(s, 10, 64)
   } else if dtype == "uint64" {
     v, err = strconv.ParseUint(s, 10, 64)
   } else if dtype == "string" {
@@ -178,7 +179,7 @@ func port(host int) string {
 }
 
 func main() {
-  pxpeers := make([]string, PXCONFIG)
+  pxpeers := make([]string, 0)
   for i := 0; i < PXCONFIG; i++ {
     pxpeers = append(pxpeers, port(i))
   }

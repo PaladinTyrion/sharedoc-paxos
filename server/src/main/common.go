@@ -12,12 +12,11 @@ const (
 )
 
 type Op struct {
-  Cid  int
-  Seq  int
-  Rev  uint64
-  Opty int
-  Pos  uint64
-  Char string
+  ID       int64
+  Version  uint64
+  Type     int
+  Position uint64
+  Value    string
 }
 
 func assert(condition bool, callSite string) {

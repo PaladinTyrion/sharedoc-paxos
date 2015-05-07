@@ -1,6 +1,7 @@
 package main
 
 import (
+  "log"
   "fmt"
   "encoding/json"
   "time"
@@ -10,13 +11,21 @@ import (
 // Paxos utilities
 // Require Mutex be held!
 
+type SOp struct {
+  ID       int64
+  Version  uint64
+  Type     string
+  Position uint64
+  Value    string
+}
+
 type PxLogEntry struct {
   EntryId  int64
-  PadId    int64
+  PadId    string
   ClientOp Op
 }
 
-var const_noop PxLogEntry = PxLogEntry{0, 0, Op{}}
+var const_noop PxLogEntry = PxLogEntry{0, "", Op{}}
 
 // EPServer::startAndWait():
 // Start a paxos agreement at instance number seq, and wait until
@@ -107,12 +116,28 @@ func (es *EPServer) applyEntry(le PxLogEntry) {
     return
   }
 
-  pm := es.pads[le.PadId]
+  log.Printf("pad id is %v", le.PadId)
+  pm, ok := es.pads[le.PadId]
+  if !ok {
+    pm = NewPadManager(le.PadId)
+    es.pads[le.PadId] = pm
+  }
   cop := pm.registerOp(le.ClientOp)
-  padStr := fmt.Sprintf("%v", le.PadId)
-  opJSON, err := json.Marshal(cop)
+  ncop := toStringOp(cop)
+  opJSON, err := json.Marshal(ncop)
   assert(err == nil, "panic 2")
-  es.sio.BroadcastTo(padStr, "committed", string(opJSON[:]))
+  fmt.Printf("%v -> %v", le.PadId, string(opJSON[:]))
+  es.sio.BroadcastTo(le.PadId, "op", string(opJSON[:]))
+}
+
+func toStringOp(opIn Op) SOp {
+  ret := SOp{opIn.ID, opIn.Version, "", opIn.Position, opIn.Value}
+  if opIn.Type == InsertOp {
+    ret.Type = "Insert"
+  } else {
+    ret.Type = "Delete"
+  }
+  return ret
 }
 
 // call this in a separate Goroutine in a loop, with timer delays
@@ -122,10 +147,11 @@ func (es *EPServer) autoApply() {
 
   max := es.px.MaxKnown()
 
-  if max <= es.commitPoint {
+  if max < es.commitPoint {
     return
   }
 
+  log.Printf("RUN!")
   es.paxosLogConsolidate_explicit(max)
   es.applyLog(max)
   return

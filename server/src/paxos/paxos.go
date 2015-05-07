@@ -715,6 +715,7 @@ func Make(peers []string, me int, rpcs *rpc.Server) *Paxos {
     // prepare to receive connections from clients.
     // change "unix" to "tcp" to use over a network.
     os.Remove(peers[me]) // only needed for "unix"
+    log.Printf("listen: %v\n", peers[me])
     l, e := net.Listen("unix", peers[me])
     if e != nil {
       log.Fatal("listen error: ", e)
