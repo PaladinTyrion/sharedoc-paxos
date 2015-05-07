@@ -70,7 +70,7 @@
 
       position = cursorPosition.start;
 
-      var op = {ID: id.toString(), Version: version_num.toString(), Type: type, Position: position.toString(), Value: value};
+      var op = {ID: id, Version: version_num, Type: type, Position: position, Value: value};
       console.log(op);
       local_op.push(op);
 
@@ -91,7 +91,7 @@
           
         setCaretToPos(document.getElementById("text"),position+1);
 
-        var op = {ID: id.toString(), Version: version_num.toString(), Type: type, Position: position.toString(), Value: value};
+        var op = {ID: id, Version: version_num, Type: type, Position: position, Value: value};
         console.log(op);
         local_op.push(op);
       };
@@ -102,6 +102,17 @@
 
   <!-- build socket and send and receive 'op'-->
   <script>
+    function stringFieldsOp (op) {
+      var ret = {
+        ID: op.ID.toString(),
+        Version: op.Version.toString(),
+        Type: op.Type,
+        Position: op.Position.toString(),
+        Value: op.Value
+      };
+      return ret;
+    }
+
     //initialize committed op, and change version number
     socket.on('init_comt_op',function(pad){
       var padObj = JSON.parse(pad);
@@ -121,7 +132,7 @@
       console.log("time")
       if (sent == false && local_op.length > 0) {
         console.log("prepare to send");
-        socket.emit('op',JSON.stringify(local_op[0]));
+        socket.emit('op',JSON.stringify(stringFieldsOp(local_op[0])));
         sent = true;
         //
         console.log("sent already");
