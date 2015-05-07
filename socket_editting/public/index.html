@@ -91,7 +91,7 @@
           
         setCaretToPos(document.getElementById("text"),position+1);
 
-        var op = {ID: id, Version: version_num, Type: type, Position: position, Value: value};
+        var op = {ID: id.toString(), Version: version_num.toString(), Type: type, Position: position.toString(), Value: value};
         console.log(op);
         local_op.push(op);
       };

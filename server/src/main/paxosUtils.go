@@ -1,8 +1,6 @@
 package main
 
 import (
-  "log"
-  "fmt"
   "encoding/json"
   "time"
   "paxos"
@@ -25,7 +23,7 @@ type PxLogEntry struct {
   ClientOp Op
 }
 
-var const_noop PxLogEntry = PxLogEntry{0, "", Op{}}
+var const_noop PxLogEntry = PxLogEntry{int64(0), "", Op{}}
 
 // EPServer::startAndWait():
 // Start a paxos agreement at instance number seq, and wait until
@@ -116,7 +114,6 @@ func (es *EPServer) applyEntry(le PxLogEntry) {
     return
   }
 
-  log.Printf("pad id is %v", le.PadId)
   pm, ok := es.pads[le.PadId]
   if !ok {
     pm = NewPadManager(le.PadId)
@@ -126,7 +123,7 @@ func (es *EPServer) applyEntry(le PxLogEntry) {
   ncop := toStringOp(cop)
   opJSON, err := json.Marshal(ncop)
   assert(err == nil, "panic 2")
-  fmt.Printf("%v -> %v", le.PadId, string(opJSON[:]))
+  //log.Printf("broadcast %v\n", string(opJSON[:]))
   es.sio.BroadcastTo(le.PadId, "op", string(opJSON[:]))
 }
 
@@ -151,7 +148,6 @@ func (es *EPServer) autoApply() {
     return
   }
 
-  log.Printf("RUN!")
   es.paxosLogConsolidate_explicit(max)
   es.applyLog(max)
   return

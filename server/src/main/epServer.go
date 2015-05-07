@@ -1,7 +1,6 @@
 package main
 
 import (
-  "log"
   "sync"
   "crypto/rand"
   "paxos"
@@ -69,13 +68,9 @@ func (es *EPServer) processOp(padId string, op Op) {
     newId = nrand()
   }
   le := PxLogEntry{newId, padId, op}
-  log.Printf("1")
   es.paxosLogConsolidate()
-  log.Printf("2")
   seq := es.paxosAppendToLog(le)
-  log.Printf("3")
   es.applyLog(seq)
-  log.Printf("4")
 }
 
 func NewEPServer(pxpeers []string, me int, sio *socketio.Server) *EPServer {

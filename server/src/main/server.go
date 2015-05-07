@@ -31,9 +31,7 @@ func spawnServer(pxpeers []string, me int, wg *sync.WaitGroup) {
     // Client should first send a "open pad" message, with "pad id"
     // (an integer in string format) as the argument
     // all subsequent edits are assumed to be operating on this pad
-    log.Printf("connection")
     so.On("open pad", func(pad string) {
-      log.Printf("open pad %v\n", pad)
       if len(so.Rooms()) > 1 {
         so.Emit("error", "alreay opened")
         return
@@ -44,7 +42,6 @@ func spawnServer(pxpeers []string, me int, wg *sync.WaitGroup) {
       es.mu.Lock()
       so.Join(pad)
       es.mu.Unlock()
-      
       pm := es.getPadById(pad)
       es.socketCheckIn(so.Id(), pad)
       piJSON, err := json.Marshal(pm.getLatestInfo())
@@ -66,11 +63,13 @@ func spawnServer(pxpeers []string, me int, wg *sync.WaitGroup) {
       sOp := make(map[string]string)
       err := json.Unmarshal([]byte(opJSON), &sOp)
       if err != nil {
+        log.Printf("invalid op1 %v\n", opJSON)
         so.Emit("error", "invalid op")
         return
       }
       op, err := toNativeOp(sOp)
       if err != nil {
+        log.Printf("invalid op2\n")
         so.Emit("error", "invalid op")
         return
       }
@@ -86,7 +85,7 @@ func spawnServer(pxpeers []string, me int, wg *sync.WaitGroup) {
   })
   
   server.On("error", func(so socketio.Socket, err error) {
-      log.Println("error:", err)
+    log.Println("error:", err)
   })
 
   es.startAutoApply()

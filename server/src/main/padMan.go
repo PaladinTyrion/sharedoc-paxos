@@ -1,7 +1,7 @@
 package main
 
 import (
-  "log"
+  //"log"
   "sync"
 )
 
@@ -32,11 +32,8 @@ func (pm *PadManager) registerOp(opIn Op) Op {
   opRet := opIn
   if opIn.Version == pm.rev {
     // No conflicts, apply it direcly
-    log.Printf("committed %v", opIn)
     pm.applyCommittedOp(opIn)
-    log.Printf("server version %v", pm.rev)
   } else {
-    log.Printf("server version %v", pm.rev)
     assert(opIn.Version < pm.rev, "RegisterOp")
     for v := opIn.Version; v < pm.rev; v++ {
       opReconcile(&opRet, pm.history[v])
