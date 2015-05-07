@@ -1,0 +1,3 @@
+[submodule "server/src/github.com/googollee/go-socket.io"]
+	path = server/src/github.com/googollee/go-socket.io
+	url = git@github.com:googollee/go-socket.io.git
