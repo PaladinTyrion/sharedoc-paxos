@@ -2,7 +2,7 @@
 
 Real-time online collaboration software like Etherpad~\cite{etherpad} and Google Docs~\cite{gdocs}
 faces the challenge of maintaining the consistency of a concurrently updated shared state without
-resorting to the old-school lock- based technique that can result in blocking. Operational
+resorting to the old-school lock-based technique that can result in blocking. Operational
 Transformation \cite{sun1998operational} was proposed to address exactly this problem. Despite its
 nice properties such as lock-free and non-blocking, implementing OT-based systems can be a real
 pain. An (alleged) former engineer at Google revealed that an OT implementation at Google took two
@@ -26,8 +26,8 @@ and also makes many OT algorithms obscure and difficult to understand.
 
 In order to develop intuitions about an OT algorithm, we chose to follow a different path: focus on
 the ``disambiguation'' part of the OT framework. We think that as long as we can precisely capture
-the intention of each edit operation and reconcile them in a globally consistent order, it should
-not be difficult to come up with an intuitive solution. We applied this idea throughout the design
-of our system and observed positive result in implementation and testing. We will describe the
-detailed design of our OT-based online collaboration system as well as the intuition we gained from
-building it in the rest of this document.
+the intention of each of the edit operations, and reconcile them in a globally consistent order, it
+should not be difficult to come up with an intuitive solution. We applied this idea throughout the
+design of our system and observed positive result in implementation and testing. We will describe
+the detailed design of our OT-based online collaboration system as well as the intuition we gained
+from building it in the rest of this document.
