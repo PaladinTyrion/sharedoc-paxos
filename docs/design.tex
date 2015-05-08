@@ -3,12 +3,12 @@
 The system we designed and implemented consists of three components: the OT
 algorithm, the server, and the client. We implemented a centralized model where
 clients don't talk to each other but rely on the server for coordination. The
-the clients generate operations based on the local information and submit it to
-the server. The server reconciles operations from different clients, resolve any
-conflicts, and broadcast the results to all clients. Finally each client update
-their local state in accordance with the information received from the server.
-The OT algorithm is involved in each of the step above and is therefore the core
-of our system. Now let's look at each component in detail.
+clients generate operations based on the local information and submit it to the
+server. The server reconciles operations from different clients, resolves any
+conflicts, and broadcasts the results to all clients. Finally, each client
+updates their local state in accordance with the information received from the
+server. The OT algorithm is involved in each of the steps above and is therefore
+the core of our system. Now let's look at each component in detail.
 
 \subsection{OT Algorithm}
 \label{sec:design_alg}
@@ -16,8 +16,8 @@ of our system. Now let's look at each component in detail.
 At a high level, our operational transformation (OT) framework ensures that all
 clients and servers agree on a total order in which operations are applied. We
 achieve this by making each client operation in one of the three possible
-states: {\em committed}, {\em pending}, and {\em unsent}. (We'll explain then in
-more detail in Section~\ref{sec:design_client}) Only committed operations are
+states: {\em committed}, {\em pending}, and {\em unsent} (we'll explain them in
+more detail in Section~\ref{sec:design_client}). Only committed operations are
 treated as ``hard truth'' by the servers and clients, and clients only receive
 committed operations from servers. Both pending and unsent messages will also be
 referred to as {\em uncommitted} messages for the rest of this document.
@@ -42,7 +42,7 @@ operation and broadcasts it to all clients. The clients receive committed
 operations from the server and apply them in order. This rigorous version
 management scheme ensures that all servers and clients agree on a single order
 of all committed operations. In principle it is enough to ensure the correctness
-of the system because only committed operations are treated at ``hard truth''
+of the system because only committed operations are treated as ``hard truth''
 (which means they can overwrite uncommitted operations if necessary).
 
 \subsection{Server}
@@ -93,12 +93,12 @@ account for uncommitted state because the application shouldn't block (prevent
 the user from typing additional characters) while waiting for response from the
 server. Due to network delay and/or message loss, a client's local state is
 usually ahead of the server's, and different clients' states may easily diverge.
-Now we describe how we resolve these problems.
+Now we describe how we address these problems.
 
 First of all, a client is only allowed to have one {\em pending} operation at a
 time. An operation is said to be in {\em pending} state if the client has
 already sent it to the server, but the server hasn't sent it back (via
-broadcast, actually, because other clients need this information as well) in its
+broadcast, actually, because other clients also need this information) in its
 committed form. Enforcing this policy is not unreasonable because we want strong
 sequential consistency for operations performed by the same client.
 
@@ -113,7 +113,7 @@ client will examine the version number of the committed operation and update
 tentative version numbers in unsent operations accordingly, before sending the
 next operation (the first one in the unsent queue) to the server.
 
-In the process mentioned above, if the client received from the server a
+In the process mentioned above, if the client receives from the server a
 committed operation initiated by another client, the client side program should
 also update tentative version numbers in unsent operations accordingly. In
 summary, tentative version numbers are obtained by adding committed version

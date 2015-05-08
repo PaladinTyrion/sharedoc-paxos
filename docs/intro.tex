@@ -1,12 +1,12 @@
 \section{Introduction}
 
-Real-time online collaboration software like Etherpad and Google Docs faces the challenge of
-maintaining the consistency of a concurrently updated shared state without resorting to the
-old-school lock-based technique that can result in blocking. Operational Transformation \cite{sun1998operational}
-was proposed to address exactly this problem. Despite its nice properties such as lock-free and
-non-blocking, implementing OT-based systems can be a real pain. An (alleged) former engineer at
-Google revealed that an OT implementation at Google took two years and it can still take as long if
-it were to be redone in the future \cite{sharejs}.
+Real-time online collaboration software like Etherpad~\cite{etherpad} and Google Docs~\cite{gdocs}
+faces the challenge of maintaining the consistency of a concurrently updated shared state without
+resorting to the old-school lock- based technique that can result in blocking. Operational
+Transformation \cite{sun1998operational} was proposed to address exactly this problem. Despite its
+nice properties such as lock-free and non-blocking, implementing OT-based systems can be a real
+pain. An (alleged) former engineer at Google revealed that an OT implementation at Google took two
+years and it can still take as long if it were to be redone in the future \cite{sharejs}.
 
 We have this exact feeling while we read through documentations of open source solutions like
 Etherpad as well as some academic papers describing OT algorithms. They are either too high-level
