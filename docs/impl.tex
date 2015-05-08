@@ -25,6 +25,18 @@ all external libraries and code snippets.
 
 \subsection{Server-side Paxos Integration}
 
+\begin{figure}[t!]
+  \centering
+  \includegraphics[width=0.45\textwidth]{system_overview.png}
+
+  \caption{High-level overview of the implemented system. $P_1$, $P_2$, $P_3$
+  are replicated servers talking to each other using Paxos (a three-server
+  configuration shown here), and clients are connected to each other via these
+  servers. Clients can connect to different Paxos peers.}
+  
+  \label{fig:system}
+\end{figure}
+
 To improve availability of the server, we replicate the server using the Paxos
 protocol~\cite{lamport1998part}. Clients can connect to any server in the Paxos
 quorum without noticing the difference. One challenge to address is to make sure
@@ -32,6 +44,7 @@ that clients connected to different Paxos peers can see each other's updates in
 a timely manner. We achieve this by running a background thread at each Paxos
 server (called the ``auto-apply'' thread) whose sole job is to periodically look
 for new decided entries in the Paxos log and apply them if any.
+Figure~\ref{fig:system} gives a high-level overview of the system.
 
 The Go program contains 630 lines of code, excluding Paxos\footnote{There are
 minor modifications to the Paxos library, though.} and external libraries.
