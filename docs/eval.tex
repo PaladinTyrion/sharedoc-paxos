@@ -1,1 +1,39 @@
-\section{Evaluation}
+\section{Testings and Lessons Learned}
+
+We evaluated the correctness of the system by manual testing. To test the
+client-side program, we have also written a JavaScript version of a unreplicated
+single-threaded server using the Node.JS framework~\cite{nodejs}. Once we are
+convinced that the client-side script is working, we integrate it with our
+Paxos-enabled servers. So far we have not encountered any errors in our testing
+with multiple clients connected to different Paxos peers. We also did not
+observe any perceptible delays of clients seeing each other's updates in those
+tests.
+
+We also found our debugging process (from first compile to being fully
+functional) relatively smooth. Most of the problems identified and fixed during
+this process were related to client-server communication rather than the core
+program logic. Communication caused us a little trouble because JavaScript has a
+dynamic type system while Go has a static one. We worked this problem around by
+forcing everything to string before converting a JavaScript object to JSON. Our
+relatively effortless debugging process is well reflected in the commit history
+in the project repository.
+
+The major lesson we learned by doing this project is that it always helps to
+think carefully about the mathematical properties of a design before actually
+``hack'' into it. We spent a lot of time discussing possible solutions and
+abandoned many approaches that first seemed trivial but turned out to require
+ad-hoc reasoning for many corner cases. In the end we choose the design that has
+the strongest correctness properties: let both clients and servers agree on a
+global commit order, rather than letting them diverge first and reconcile
+committed versions later. Our relatively effortless debugging process highlights
+the importance of thinking hard about the right design.
+
+Another lesson we learned is that there are two problems an OT algorithm needs
+to address: to precisely interpret the intentions of the operations especially
+when they arrive out-of-order, and to reasonably merge all operations. It helps
+to keep this fact in mind, and any working algorithm must address both problems.
+Focusing on any single problem isn't going to help much and is likely to make
+the resulting solution obscure and with lots of corner cases to address. In
+hindsight, it makes sense to only merge intentions together in an on-line
+collaboration system, rather than finding a clever way to merge ``diffs''
+together.
