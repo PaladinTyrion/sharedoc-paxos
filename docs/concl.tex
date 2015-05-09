@@ -1,1 +1,25 @@
 \section{Future Work and Conclusion}
+
+We acknowledge that there are still significant limitations to our current
+implementation (as of project submission). We don't handle persistence in our
+system so everything is lost when the server is shut down, and clients currently
+can't work on separate documents\footnote{Servers do maintain separate states
+for different documents so this feature is actually implemented on the server
+side. To simplify our user interface so that we can focus on the distributed
+system part of the system, we decided not to add this feature to the client-side
+script.}. Another limitation comes from our way of generating operations: our
+current approach of listening to key strokes doesn't work if the client uses
+copy-and-paste or deletes a block of selected text. These are not fundamental
+design issues but they do represent some usability issues. We plan to address
+some of these problems in the future to make it more suitable for real-world
+use.
+
+In summary, we implemented a distributed version of collaborative editing
+platform with Paxos-backed servers. We also designed our own operational
+transformation (OT) algorithm used to keep all clients and servers in sync,
+which shows strong correctness properties by allowing uncommitted operations to
+mutate and ensuring a unique order for all committed operations. In our system,
+different clients can connect to any server in the Paxos quorum and collaborate
+on a shared document without perceptible delays. Our development experience
+demonstrates the importance of a good design, and our testing results show that
+our design is functionally correct and has decent performance.
