@@ -1,7 +1,7 @@
 # Etherpad-Paxos
 Etherpad-like online docs collaboration app with Paxos servers
 
-**IMPORTANT: This project is NOT in any way related to [Etherpad](http://etherpad.org).** We will change the project name once this Spring semester at MIT is over.
+**IMPORTANT MESSAGE TO ETHERPAD USERS: This project is NOT in any way related to [Etherpad](http://etherpad.org).** We will change the project name once this Spring semester at MIT is over.
 
 This is a work-in-progress developed to be the final project of [6.824 (Spring 2015)](http://nil.csail.mit.edu/6.824/2015/) at Massachusetts Institute of Technology.
 
